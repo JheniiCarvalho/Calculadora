@@ -1,210 +1,65 @@
 <!DOCTYPE html>
---muted:#9aa3c1; /* texto secundário */
---shadow: 0 10px 30px rgba(0,0,0,.35);
---radius: 18px;
-}
-*{ box-sizing: border-box; }
-html,body{
-margin:0; height:100%; background: radial-gradient(1200px 800px at 20% -10%, #1b2050 0%, transparent 60%),
-radial-gradient(1000px 700px at 120% 120%, #2a2f6b 0%, transparent 60%), var(--bg);
-font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial;
-color:var(--text);
-}
-.wrap{
-min-height:100%; display:flex; align-items:center; justify-content:center; padding:24px;
-}
-.calc{
-width:min(92vw, 420px); background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-border:1px solid rgba(255,255,255,.06); border-radius: var(--radius); box-shadow: var(--shadow);
-overflow:hidden; backdrop-filter: blur(8px);
-}
-.display{
-padding:22px 22px 12px; display:flex; flex-direction:column; gap:10px; background:var(--panel);
-}
-.expr{ min-height:28px; font-size:clamp(16px, 2.2vw + 12px, 20px); color:var(--muted); word-wrap:anywhere; }
-.result{ min-height:48px; font-weight:700; font-variant-numeric: tabular-nums;
-font-size: clamp(28px, 5vw + 12px, 44px); text-align:right; }
-.screen{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
-
-
-.keys{
-display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; padding:18px; background:transparent;
-}
-button.key{
-appearance:none; border:none; border-radius:14px; padding:16px 12px; font-size:20px; font-weight:600;
-color:var(--key-text); background:var(--key); box-shadow: inset 0 -2px 0 rgba(255,255,255,.06), 0 6px 14px rgba(0,0,0,.25);
-cursor:pointer; transition: transform .06s ease, filter .2s ease, background .2s ease;
-}
-button.key:active{ transform: translateY(1px) scale(.99); }
-button.key:hover{ filter: brightness(1.08); }
-.op{ background: var(--key-ops); }
-.main{ background: var(--key-act); color:#0b0f2a; }
-.span-2{ grid-column: span 2; }
-
-
-/* Acessibilidade visível ao foco */
-button.key:focus{ outline: 3px solid rgba(108,124,255,.6); outline-offset:2px; }
-
-
-/* Rodapé leve */
-.foot{ padding:0 18px 18px; color:var(--muted); font-size:12px; text-align:center; }
-
-
-</style>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculadora Simples</title>
+  <style>
+    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f0f0; }
+    .calc { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    #display { width: 100%; height: 40px; margin-bottom: 10px; text-align: right; padding: 5px; font-size: 20px; }
+    .buttons { display: grid; grid-template-columns: repeat(4, 60px); gap: 10px; }
+    button { padding: 15px; font-size: 18px; border: none; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #ddd; }
+    .equal { background: #4CAF50; color: white; }
+    .equal:hover { background: #45a049; }
+  </style>
 </head>
 <body>
-<div class="wrap">
-<div class="calc" role="application" aria-label="Calculadora">
-<div class="display">
-<div class="screen" aria-live="polite" aria-atomic="true">
-<div class="expr" id="expr">&nbsp;</div>
-<div class="result" id="result">0</div>
-</div>
-</div>
+  <div class="calc">
+    <input type="text" id="display" disabled>
+    <div class="buttons">
+      <button onclick="press('7')">7</button>
+      <button onclick="press('8')">8</button>
+      <button onclick="press('9')">9</button>
+      <button onclick="press('/')">÷</button>
 
+      <button onclick="press('4')">4</button>
+      <button onclick="press('5')">5</button>
+      <button onclick="press('6')">6</button>
+      <button onclick="press('*')">×</button>
 
-<div class="keys" aria-label="Teclado da calculadora">
-<button class="key op" data-key="(" aria-label="abre parêntese">(</button>
-<button class="key op" data-key=")" aria-label="fecha parêntese">)</button>
-<button class="key op" data-key="%" aria-label="porcentagem">%</button>
-<button class="key op" data-key="AC" aria-label="limpar tudo">AC</button>
+      <button onclick="press('1')">1</button>
+      <button onclick="press('2')">2</button>
+      <button onclick="press('3')">3</button>
+      <button onclick="press('-')">−</button>
 
+      <button onclick="press('0')">0</button>
+      <button onclick="press('.')">.</button>
+      <button onclick="clearDisplay()">C</button>
+      <button onclick="press('+')">+</button>
 
-<button class="key op" data-key="7">7</button>
-<button class="key op" data-key="8">8</button>
-<button class="key op" data-key="9">9</button>
-<button class="key op" data-key="/" aria-label="dividir">÷</button>
+      <button class="equal" style="grid-column: span 4;" onclick="calculate()">=</button>
+    </div>
+  </div>
 
+  <script>
+    let display = document.getElementById("display");
 
-<button class="key op" data-key="4">4</button>
-<button class="key op" data-key="5">5</button>
-<button class="key op" data-key="6">6</button>
-<button class="key op" data-key="*" aria-label="multiplicar">×</button>
+    function press(value) {
+      display.value += value;
+    }
 
+    function clearDisplay() {
+      display.value = "";
+    }
 
-<button class="key op" data-key="1">1</button>
-<button class="key op" data-key="2">2</button>
-<button class="key op" data-key="3">3</button>
-<button class="key op" data-key="-" aria-label="subtrair">−</button>
-
-
-<button class="key op" data-key="0">0</button>
-<button class="key op" data-key="." aria-label="ponto">.</button>
-<button class="key op" data-key="BACK" aria-label="apagar">⌫</button>
-<button class="key op" data-key="+" aria-label="somar">+</button>
-
-
-<button class="key main span-2" data-key="=" aria-label="igual">=</button>
-<button class="key op span-2" data-key="C" aria-label="limpar entrada">C</button>
-</div>
-
-
-<div class="foot">Suporta teclado: números, + − × ÷ / * ( ) % . Enter, Backspace, Esc.</div>
-</div>
-</div>
-
-
-<script>
-const exprEl = document.getElementById('expr');
-const resultEl = document.getElementById('result');
-
-
-let expr = '';
-
-
-function updateDisplay(){
-exprEl.textContent = expr.trim() ? expr : '\u00A0';
-}
-
-
-function append(val){
-if(val === 'AC'){ expr = ''; resultEl.textContent = '0'; updateDisplay(); return; }
-if(val === 'C'){ // limpar última entrada até operador
-expr = expr.replace(/(?:(?<=\d)\.?\d+|\.?\d+|[+\-*/%()])\s*$/, '');
-updateDisplay(); return;
-}
-if(val === 'BACK'){ // backspace
-expr = expr.slice(0, -1); updateDisplay(); return;
-}
-if(val === '='){ calc(); return; }
-// normaliza símbolos visuais
-if(val === '×') val = '*';
-if(val === '÷') val = '/';
-// evita operadores duplicados
-if(/[+\-*/%]/.test(val) && /[+\-*/%]$/.test(expr)){
-expr = expr.slice(0,-1) + val; updateDisplay(); return;
-}
-expr += val; updateDisplay();
-}
-
-
-function sanitize(input){
-// aceita apenas dígitos, operadores, parênteses, ponto e espaço
-const ok = /^[0-9+\-*/().%\s]*$/;
-if(!ok.test(input)) throw new Error('Expressão inválida');
-return input;
-}
-
-
-function calc(){
-if(!expr.trim()) return;
-try{
-const safe = sanitize(expr.replace(/×/g,'*').replace(/÷/g,'/'));
-// trata porcentagem no estilo calculadora (ex: 50% => 0.5)
-const percentHandled = safe.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
-// evita avaliar finais inválidos
-if(/[+\-*/%(.]$/.test(percentHandled)) throw new Error('Expressão incompleta');
-// usa Function em vez de eval e limita operações
-const value = Function('return (' + percentHandled + ')')();
-const out = Number.isFinite(value) ? value : NaN;
-if(Number.isNaN(out)) throw new Error('Cálculo inválido');
-resultEl.textContent = format(out);
-}catch(e){
-resultEl.textContent = 'Erro';
-}
-}
-
-
-function format(n){
-// formata com máximo de 12 dígitos significativos
-const str = Math.abs(n) >= 1e12 || (Math.abs(n) > 0 && Math.abs(n) < 1e-6)
-? n.toExponential(8)
-: n.toLocaleString('pt-BR', { maximumFractionDigits: 10 });
-return str;
-}
-
-
-// Clique nas teclas
-document.querySelectorAll('button.key').forEach(btn=>{
-btn.addEventListener('click', ()=>{
-const key = btn.dataset.key;
-append(key);
-if(key === '=') btn.blur();
-});
-});
-
-
-// Suporte ao teclado
-window.addEventListener('keydown', (e)=>{
-const k = e.key;
-if((/^[0-9]$/).test(k)) return append(k);
-if(['+','-','*','/','%','(',')','.'].includes(k)) return append(k);
-if(k === 'Enter' || k === '='){ e.preventDefault(); return append('='); }
-if(k === 'Backspace'){ return append('BACK'); }
-if(k === 'Escape'){ return append('AC'); }
-});
-
-
-// duplo clique no resultado cola na expressão
-resultEl.addEventListener('dblclick', ()=>{
-if(resultEl.textContent && resultEl.textContent !== 'Erro'){
-expr = resultEl.textContent.replace(/\./, '.');
-updateDisplay();
-}
-});
-
-
-updateDisplay();
-</script>
+    function calculate() {
+      try {
+        display.value = eval(display.value);
+      } catch {
+        display.value = "Erro";
+      }
+    }
+  </script>
 </body>
 </html>
