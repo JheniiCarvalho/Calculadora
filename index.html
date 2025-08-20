@@ -1,18 +1,4 @@
 <!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Calculadora</title>
-<style>
-:root{
---bg:#0f1222; /* fundo */
---panel:#151936; /* painel */
---key:#1b2050; /* tecla padrão */
---key-ops:#2a2f6b; /* tecla operadores */
---key-act:#6c7cff; /* tecla ação principal */
---key-text:#e7ebff; /* texto nas teclas */
---text:#f5f7ff; /* texto geral */
 --muted:#9aa3c1; /* texto secundário */
 --shadow: 0 10px 30px rgba(0,0,0,.35);
 --radius: 18px;
@@ -86,3 +72,139 @@ button.key:focus{ outline: 3px solid rgba(108,124,255,.6); outline-offset:2px; }
 
 <button class="key op" data-key="7">7</button>
 <button class="key op" data-key="8">8</button>
+<button class="key op" data-key="9">9</button>
+<button class="key op" data-key="/" aria-label="dividir">÷</button>
+
+
+<button class="key op" data-key="4">4</button>
+<button class="key op" data-key="5">5</button>
+<button class="key op" data-key="6">6</button>
+<button class="key op" data-key="*" aria-label="multiplicar">×</button>
+
+
+<button class="key op" data-key="1">1</button>
+<button class="key op" data-key="2">2</button>
+<button class="key op" data-key="3">3</button>
+<button class="key op" data-key="-" aria-label="subtrair">−</button>
+
+
+<button class="key op" data-key="0">0</button>
+<button class="key op" data-key="." aria-label="ponto">.</button>
+<button class="key op" data-key="BACK" aria-label="apagar">⌫</button>
+<button class="key op" data-key="+" aria-label="somar">+</button>
+
+
+<button class="key main span-2" data-key="=" aria-label="igual">=</button>
+<button class="key op span-2" data-key="C" aria-label="limpar entrada">C</button>
+</div>
+
+
+<div class="foot">Suporta teclado: números, + − × ÷ / * ( ) % . Enter, Backspace, Esc.</div>
+</div>
+</div>
+
+
+<script>
+const exprEl = document.getElementById('expr');
+const resultEl = document.getElementById('result');
+
+
+let expr = '';
+
+
+function updateDisplay(){
+exprEl.textContent = expr.trim() ? expr : '\u00A0';
+}
+
+
+function append(val){
+if(val === 'AC'){ expr = ''; resultEl.textContent = '0'; updateDisplay(); return; }
+if(val === 'C'){ // limpar última entrada até operador
+expr = expr.replace(/(?:(?<=\d)\.?\d+|\.?\d+|[+\-*/%()])\s*$/, '');
+updateDisplay(); return;
+}
+if(val === 'BACK'){ // backspace
+expr = expr.slice(0, -1); updateDisplay(); return;
+}
+if(val === '='){ calc(); return; }
+// normaliza símbolos visuais
+if(val === '×') val = '*';
+if(val === '÷') val = '/';
+// evita operadores duplicados
+if(/[+\-*/%]/.test(val) && /[+\-*/%]$/.test(expr)){
+expr = expr.slice(0,-1) + val; updateDisplay(); return;
+}
+expr += val; updateDisplay();
+}
+
+
+function sanitize(input){
+// aceita apenas dígitos, operadores, parênteses, ponto e espaço
+const ok = /^[0-9+\-*/().%\s]*$/;
+if(!ok.test(input)) throw new Error('Expressão inválida');
+return input;
+}
+
+
+function calc(){
+if(!expr.trim()) return;
+try{
+const safe = sanitize(expr.replace(/×/g,'*').replace(/÷/g,'/'));
+// trata porcentagem no estilo calculadora (ex: 50% => 0.5)
+const percentHandled = safe.replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+// evita avaliar finais inválidos
+if(/[+\-*/%(.]$/.test(percentHandled)) throw new Error('Expressão incompleta');
+// usa Function em vez de eval e limita operações
+const value = Function('return (' + percentHandled + ')')();
+const out = Number.isFinite(value) ? value : NaN;
+if(Number.isNaN(out)) throw new Error('Cálculo inválido');
+resultEl.textContent = format(out);
+}catch(e){
+resultEl.textContent = 'Erro';
+}
+}
+
+
+function format(n){
+// formata com máximo de 12 dígitos significativos
+const str = Math.abs(n) >= 1e12 || (Math.abs(n) > 0 && Math.abs(n) < 1e-6)
+? n.toExponential(8)
+: n.toLocaleString('pt-BR', { maximumFractionDigits: 10 });
+return str;
+}
+
+
+// Clique nas teclas
+document.querySelectorAll('button.key').forEach(btn=>{
+btn.addEventListener('click', ()=>{
+const key = btn.dataset.key;
+append(key);
+if(key === '=') btn.blur();
+});
+});
+
+
+// Suporte ao teclado
+window.addEventListener('keydown', (e)=>{
+const k = e.key;
+if((/^[0-9]$/).test(k)) return append(k);
+if(['+','-','*','/','%','(',')','.'].includes(k)) return append(k);
+if(k === 'Enter' || k === '='){ e.preventDefault(); return append('='); }
+if(k === 'Backspace'){ return append('BACK'); }
+if(k === 'Escape'){ return append('AC'); }
+});
+
+
+// duplo clique no resultado cola na expressão
+resultEl.addEventListener('dblclick', ()=>{
+if(resultEl.textContent && resultEl.textContent !== 'Erro'){
+expr = resultEl.textContent.replace(/\./, '.');
+updateDisplay();
+}
+});
+
+
+updateDisplay();
+</script>
+</body>
+</html>
