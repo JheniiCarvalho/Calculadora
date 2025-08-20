@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Calculadora</title>
+<style>
+:root{
+--bg:#0f1222; /* fundo */
+--panel:#151936; /* painel */
+--key:#1b2050; /* tecla padrão */
+--key-ops:#2a2f6b; /* tecla operadores */
+--key-act:#6c7cff; /* tecla ação principal */
+--key-text:#e7ebff; /* texto nas teclas */
+--text:#f5f7ff; /* texto geral */
+--muted:#9aa3c1; /* texto secundário */
+--shadow: 0 10px 30px rgba(0,0,0,.35);
+--radius: 18px;
+}
+*{ box-sizing: border-box; }
+html,body{
+margin:0; height:100%; background: radial-gradient(1200px 800px at 20% -10%, #1b2050 0%, transparent 60%),
+radial-gradient(1000px 700px at 120% 120%, #2a2f6b 0%, transparent 60%), var(--bg);
+font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial;
+color:var(--text);
+}
+.wrap{
+min-height:100%; display:flex; align-items:center; justify-content:center; padding:24px;
+}
+.calc{
+width:min(92vw, 420px); background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+border:1px solid rgba(255,255,255,.06); border-radius: var(--radius); box-shadow: var(--shadow);
+overflow:hidden; backdrop-filter: blur(8px);
+}
+.display{
+padding:22px 22px 12px; display:flex; flex-direction:column; gap:10px; background:var(--panel);
+}
+.expr{ min-height:28px; font-size:clamp(16px, 2.2vw + 12px, 20px); color:var(--muted); word-wrap:anywhere; }
+.result{ min-height:48px; font-weight:700; font-variant-numeric: tabular-nums;
+font-size: clamp(28px, 5vw + 12px, 44px); text-align:right; }
+.screen{ display:flex; flex-direction:column; gap:6px; align-items:flex-end; }
+
+
+.keys{
+display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; padding:18px; background:transparent;
+}
+button.key{
+appearance:none; border:none; border-radius:14px; padding:16px 12px; font-size:20px; font-weight:600;
+color:var(--key-text); background:var(--key); box-shadow: inset 0 -2px 0 rgba(255,255,255,.06), 0 6px 14px rgba(0,0,0,.25);
+cursor:pointer; transition: transform .06s ease, filter .2s ease, background .2s ease;
+}
+button.key:active{ transform: translateY(1px) scale(.99); }
+button.key:hover{ filter: brightness(1.08); }
+.op{ background: var(--key-ops); }
+.main{ background: var(--key-act); color:#0b0f2a; }
+.span-2{ grid-column: span 2; }
+
+
+/* Acessibilidade visível ao foco */
+button.key:focus{ outline: 3px solid rgba(108,124,255,.6); outline-offset:2px; }
+
+
+/* Rodapé leve */
+.foot{ padding:0 18px 18px; color:var(--muted); font-size:12px; text-align:center; }
+
+
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="calc" role="application" aria-label="Calculadora">
+<div class="display">
+<div class="screen" aria-live="polite" aria-atomic="true">
+<div class="expr" id="expr">&nbsp;</div>
+<div class="result" id="result">0</div>
+</div>
+</div>
+
+
+<div class="keys" aria-label="Teclado da calculadora">
+<button class="key op" data-key="(" aria-label="abre parêntese">(</button>
+<button class="key op" data-key=")" aria-label="fecha parêntese">)</button>
+<button class="key op" data-key="%" aria-label="porcentagem">%</button>
+<button class="key op" data-key="AC" aria-label="limpar tudo">AC</button>
+
+
+<button class="key op" data-key="7">7</button>
+<button class="key op" data-key="8">8</button>
